@@ -33,7 +33,7 @@ func OpenDbConnection() *gorm.DB {
 	var db *gorm.DB
 	var err error
 	if dialect == "sqlite3" {
-		db, err = gorm.Open("sqlite3", path.Join(".", "app.db"))
+		db, err = gorm.Open("sqlite3", path.Join(".", "sqlitedemo.db"))
 	} else {
 		// db, err := gorm.Open("mysql", "root:root@localhost/go_api_shop_gonc?charset=utf8")
 		databaseURL := fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=disable ", host, username, password, dbName)
@@ -54,7 +54,7 @@ func OpenDbConnection() *gorm.DB {
 //RemoveDb Delete the database after running testing cases.
 func RemoveDb(db *gorm.DB) error {
 	db.Close()
-	err := os.Remove(path.Join(".", "app.db"))
+	err := os.Remove(path.Join(".", "sqlitedemo.db"))
 	return err
 }
 

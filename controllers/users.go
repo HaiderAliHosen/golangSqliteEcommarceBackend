@@ -49,8 +49,8 @@ func UsersRegistration(c *gin.Context) {
 func UsersLogin(c *gin.Context) {
 
 	var json dtos.LoginRequestDto
-	fmt.Println(json)
-	if err := c.ShouldBindJSON(&json); err != nil {
+	//fmt.Println(json)
+	if err := c.BindJSON(&json); err != nil {
 		fmt.Println(" can't ShouldBindJSON")
 		c.JSON(http.StatusBadRequest, dtos.CreateBadRequestErrorDto(err))
 		return
