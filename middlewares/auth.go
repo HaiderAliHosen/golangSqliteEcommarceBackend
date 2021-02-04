@@ -13,6 +13,7 @@ import (
 	"strings"
 )
 
+//EnforceAuthenticatedMiddleware ---
 func EnforceAuthenticatedMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		user, exists := c.Get("currentUser")
@@ -26,6 +27,7 @@ func EnforceAuthenticatedMiddleware() gin.HandlerFunc {
 	}
 }
 
+//UserLoaderMiddleware ---
 func UserLoaderMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		bearer := c.Request.Header.Get("Authorization")
@@ -48,14 +50,14 @@ func UserLoaderMiddleware() gin.HandlerFunc {
 					return
 				}
 				if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-					userId := uint(claims["user_id"].(float64))
-					fmt.Printf("[+] Authenticated request, authenticated user id is %d\n", userId)
+					userID := uint(claims["user_id"].(float64))
+					fmt.Printf("[+] Authenticated request, authenticated user id is %d\n", userID)
 
 					var user models.User
-					if userId != 0 {
+					if userID != 0 {
 						database := infrastructure.GetDb()
 						// We always need the Roles to be loaded to make authorization decisions based on Roles
-						database.Preload("Roles").First(&user, userId)
+						database.Preload("Roles").First(&user, userID)
 					}
 
 					c.Set("currentUser", user)
