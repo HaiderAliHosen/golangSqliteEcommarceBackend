@@ -139,25 +139,55 @@ func main() {
 	// goGonicEngine.Use(gin.Logger())
 	// goGonicEngine.Use(gin.Recovery())
 	goGonicEngine := gin.Default() // gin with the Logger and Recovery Middlewares attached
+	//goGonicEngine.Use(cors.Default())
 	// Allow all Origins
-	goGonicEngine.Use(cors.Default())
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowCredentials = true
+	config.AddAllowHeaders("authorization")
+	goGonicEngine.Use(cors.New(config))
+
+	// goGonicEngine.Use(cors.New(cors.Config{
+	// 	AllowOrigins:     []string{"*"},
+	// 	AllowMethods:     []string{"POST, OPTIONS, GET, PUT"},
+	// 	AllowHeaders:     []string{"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"},
+	// 	ExposeHeaders:    []string{"Content-Length"},
+	// 	AllowCredentials: true,
+	// 	// AllowOriginFunc: func(origin string) bool {
+	// 	// 	return origin == "https://github.com"
+	// 	// },
+	// 	MaxAge: 12 * time.Hour,
+	// }))
+
+	// goGonicEngine.Use(cors.New(cors.Config{
+	// 	AllowMethods:     []string{"GET", "POST", "OPTIONS", "PUT"},
+	// 	AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "User-Agent", "Referrer", "Host", "Token"},
+	// 	ExposeHeaders:    []string{"Content-Length"},
+	// 	AllowCredentials: true,
+	// 	AllowAllOrigins:  true,
+	// 	AllowOriginFunc:  func(origin string) bool { return true },
+	// 	MaxAge:           86400,
+	// }))
+
+	//goGonicEngine.Use(cors.Default())
 
 	goGonicEngine.Use(middlewares.Benchmark())
 
-	// goGonicEngine.Use(middlewares.Cors())
+	//goGonicEngine.Use(middlewares.Cors())
+	//goGonicEngine.Use(middlewares.CORSMiddleware())
 
-	goGonicEngine.Use(middlewares.UserLoaderMiddleware())
+	//goGonicEngine.Use(middlewares.UserLoaderMiddleware())
 	goGonicEngine.Static("/static", "./static")
 	apiRouteGroup := goGonicEngine.Group("/api")
 
 	controllers.RegisterUserRoutes(apiRouteGroup.Group("/users"))
-	controllers.RegisterProductRoutes(apiRouteGroup.Group("/products"))
-	controllers.RegisterCommentRoutes(apiRouteGroup.Group("/"))
-	controllers.RegisterPageRoutes(apiRouteGroup.Group("/"))
-	controllers.RegisterAddressesRoutes(apiRouteGroup.Group("/users"))
-	controllers.RegisterTagRoutes(apiRouteGroup.Group("/tags"))
-	controllers.RegisterCategoryRoutes(apiRouteGroup.Group("/categories"))
-	controllers.RegisterOrderRoutes(apiRouteGroup.Group("/orders"))
+	controllers.RegisterProductRoutes(apiRouteGroup.Group("/products", middlewares.UserLoaderMiddleware()))
+	controllers.RegisterCommentRoutes(apiRouteGroup.Group("/", middlewares.UserLoaderMiddleware()))
+	controllers.RegisterPageRoutes(apiRouteGroup.Group("/", middlewares.UserLoaderMiddleware()))
+	controllers.RegisterAddressesRoutes(apiRouteGroup.Group("/users", middlewares.UserLoaderMiddleware()))
+	controllers.RegisterTagRoutes(apiRouteGroup.Group("/tags", middlewares.UserLoaderMiddleware()))
+	controllers.RegisterCategoryRoutes(apiRouteGroup.Group("/categories", middlewares.UserLoaderMiddleware()))
+	controllers.RegisterOrderRoutes(apiRouteGroup.Group("/orders", middlewares.UserLoaderMiddleware()))
 
 	goGonicEngine.Run(":8080") // listen and serve on 0.0.0.0:8080
 }
